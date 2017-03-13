@@ -25,6 +25,17 @@ public interface PeliculasServiceWSImp {
 
     /**
      * 
+     * @return
+     *     returns com.ipartek.peliculas.PeliculaColeccionMensaje
+     */
+    @WebMethod
+    @WebResult(targetNamespace = "")
+    @RequestWrapper(localName = "obtenertodos", targetNamespace = "http://com.ipartek.formacion/types", className = "com.ipartek.peliculas.Obtenertodos")
+    @ResponseWrapper(localName = "obtenertodosResponse", targetNamespace = "http://com.ipartek.formacion/types", className = "com.ipartek.peliculas.ObtenertodosResponse")
+    public PeliculaColeccionMensaje obtenertodos();
+
+    /**
+     * 
      * @param arg0
      * @return
      *     returns com.ipartek.peliculas.PeliculaMensaje

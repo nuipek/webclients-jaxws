@@ -10,37 +10,51 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 
 import com.ipartek.peliculas.Pelicula;
+import com.ipartek.peliculas.PeliculaColeccion;
+import com.ipartek.peliculas.PeliculaColeccionMensaje;
 import com.ipartek.peliculas.PeliculaMensaje;
 import com.ipartek.peliculas.PeliculasServiceWSImp;
 import com.ipartek.peliculas.Peliculasservice;
 
 public class Main {
+	
+	private static Map<String,Object> requestContext = null;
+	private static Map<String,List<String>> requestHeaders = null;
+	private static Peliculasservice cliente = null;
+	private static PeliculasServiceWSImp clienteSoap = null;
+
 
 	public static void main(String[] args) {
 		
-		Peliculasservice cliente = new Peliculasservice();
-		PeliculasServiceWSImp clienteSoap = cliente.getPeliculasServiceWSImpPort();
+		cliente = new Peliculasservice();
+		clienteSoap = cliente.getPeliculasServiceWSImpPort();
 		// Engancharemos los datos de validacion.
 		
 		// capturo el contexto de la aplicacion
-		Map<String,Object> requestContext = ((BindingProvider)clienteSoap).getRequestContext();
+		requestContext = ((BindingProvider)clienteSoap).getRequestContext();
 		
 		// Me genero la estructura necesaria para enviar los datos
-		Map<String,List<String>> requestHeaders = new HashMap<String,List<String>>();
+		requestHeaders = new HashMap<String,List<String>>();
 		
+		System.out.println("Llamada por codigo");
+		getById(2);
+		System.out.println("Llamada toda la lista");
+		getAll();
+		
+		
+		
+
+	}
+	private static void getById(int codigo )
+	{
 		// Introduzco los datos en el encabezado de la peticion
-			// si la lista es de un elemento podemos utilizar singletonList
+				// si la lista es de un elemento podemos utilizar singletonList
 		requestHeaders.put("sessionId", Collections.singletonList("ipsession"));
-		/* si tiene mas de un elemento utilizamos arraylist
-		List<String> lista = new ArrayList<String>();
-		lista.add("ipsession");
-		requestHeaders.put("sessionId", lista );
-		*/
-		
+								
 		//pasamos los parametros para el header del contexto de la aplicacion
 		requestContext.put(MessageContext.HTTP_REQUEST_HEADERS, requestHeaders);
-		
-		PeliculaMensaje respuesta = clienteSoap.obtenerporid(2);
+				
+		PeliculaMensaje respuesta = clienteSoap.obtenerporid(codigo);
 		Pelicula pelicula = respuesta.getPelicula();
 		String mensaje =  respuesta.getMensaje();
 		if (pelicula != null){
@@ -49,9 +63,27 @@ public class Main {
 		else {
 			System.out.println(mensaje);
 		}
+	
+	}
+	private static void getAll()
+	{
 		
+		requestHeaders.put("user", Collections.singletonList("root"));
+		requestHeaders.put("pass", Collections.singletonList("saparicio"));
+		requestContext.put(MessageContext.HTTP_REQUEST_HEADERS, requestHeaders);
 		
-
+		PeliculaColeccionMensaje respuesta = clienteSoap.obtenertodos();
+		PeliculaColeccion peliculas = respuesta.getPeliculas();
+		String mensaje =  respuesta.getMensaje();
+		
+		if (peliculas != null){
+			for(Pelicula pelicula : peliculas.getPeliculas()){
+				System.out.println(pelicula.getTitulo());
+			}
+		}
+		else {
+			System.out.println(mensaje);
+		}
 	}
 
 }
